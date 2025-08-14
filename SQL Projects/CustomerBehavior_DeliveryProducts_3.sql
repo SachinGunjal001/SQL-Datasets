@@ -1,0 +1,3 @@
+ CREATE DATABASE  Customer_Behavior_DeliveryProducts_3
+
+ USE Customer_Behavior_DeliveryProducts_3
