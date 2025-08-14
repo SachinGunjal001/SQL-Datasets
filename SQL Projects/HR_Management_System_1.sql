@@ -704,6 +704,7 @@ C. changes the attribute of the fee column to NOT NULL.
 ALTER TABLE COURSES
 ALTER COLUMN FEE DECIMAL(10,2) NOT NULL
 
+-- Checking datatypes to each column
 EXEC SP_HELP 'COURSES'
 
 D. to remove the fee column of the courses table 
@@ -728,12 +729,12 @@ SELECT * FROM Courses
  SQL foreign key constraint 
 */
 
+-- Added Columns for these questions
 CREATE TABLE projects ( 
 project_id INT PRIMARY KEY, 
 project_name VARCHAR(255), 
 start_date DATE NOT NULL, 
 end_date DATE NOT NULL ); 
-
 
 
 CREATE TABLE project_milestones( 
@@ -804,8 +805,7 @@ WHERE SALARY > (
 SELECT AVG(SALARY) FROM EMPLOYEES)
 ORDER BY SALARY DESC
 
-SELECT * FROM EMPLOYEES
-SELECT * FROM DEPENDENTS
+	
 B. finds all employees who have dependents:
 
 SELECT DISTINCT e.*
@@ -814,7 +814,6 @@ INNER JOIN
 dependents d
 ON 
 e.employee_id = d.employee_id;
-
 
 
 C. to find all employees whose salaries are between 2,500 and 2,900: 
@@ -968,12 +967,14 @@ ORDER BY D.Department_ID
 --- SQL LEFT JOIN
 SELECT * FROM Countries
 SELECT * FROM Locations
+	
 A. To query the country names of US, UK, and China 
 
 SELECT Country_Id, Country_Name FROM Countries
 WHERE Country_ID IN ('US', 'UK','CN')
 
 B. query retrieves the locations located in the US, UK and China: 
+	
 SELECT l.location_id, l.street_address, l.city, l.state_province, c.country_name
 FROM locations l
 JOIN countries c ON l.country_id = c.country_id
@@ -997,12 +998,7 @@ WHERE l.location_id IS NULL
 
 Write a query to join 3 tables: regions, countries, and locations
 
-SELECT R.region_id,
-       R.region_name,
-       C.country_id,
-       C.country_name,
-       L.location_id,
-       L.city
+SELECT R.region_id, R.region_name, C.country_id, C.country_name, L.location_id, L.city
 FROM regions R
 INNER JOIN countries C
     ON R.region_id = C.region_id
@@ -1086,7 +1082,6 @@ WHERE B.BASKET_Id IS NULL
 
 
 -- SQL CROSS JOIN clause 
-
 
 CREATE TABLE sales_organization (
  sales_org_id INT PRIMARY KEY, 
@@ -1314,8 +1309,8 @@ SELECT CONCAT(First_Name, ' ', Last_Name) AS Full_Name, Hire_Date,
 	END AS Work_Anniversary
 FROM EMPLOYEES
 
-B. Write a Query If the salary is less than 3000, the CASE expression returns “Low”. If the salary is between 3000 and 5000, 
-it returns “average”. When the salary is greater than 5000, the CASE expression returns “High”.
+B. Write a Query If the salary is less than 3000, the CASE expression returns Â“LowÂ”. If the salary is between 3000 and 5000, 
+it returns Â“averageÂ”. When the salary is greater than 5000, the CASE expression returns Â“HighÂ”.
 
 SELECT Employee_ID, Salary,
 	CASE 
@@ -1329,7 +1324,7 @@ FROM EMPLOYEES
 
 5) SQL UPDATE statement 
 
-Write a Query to update Sarah’s last name from  Bell to Lopez 
+Write a Query to update SarahÂ’s last name from  Bell to Lopez 
 How to  make sure that the last names of children are always matched with the last name of parents in 
 the  employees table, 
 
