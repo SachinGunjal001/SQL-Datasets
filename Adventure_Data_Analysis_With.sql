@@ -52,7 +52,6 @@ Select * from productcategorysales
 Select * from Products
 Select * from TerritoryLookup
 Select * from productcategorysales
-
 Select * from Returns
 Select * from Sales
 -------------------------------------------------------------------------------------------------
@@ -102,13 +101,72 @@ WHERE S.OrderQuantity IS NULL
 --- 5. List all employees and their managers using a self-join.
 
 
+Select * from Customers
+Select * from Sales
+Select * from Products
+Select * from productcategories
 
-Find all orders, including those not linked to a customer.
+Select * from Calendars
+Select * from ProductSubcategories
+Select * from productcategorysales
+Select * from TerritoryLookup
+Select * from productcategorysales
+Select * from Returns
 
-Get a cross join result between Sales.SalesTerritory and Production.ProductCategory.
+-- 6. Find all orders, including those not linked to a customer.
 
-Show customer names and the total number of orders they placed in 2022.
+SELECT S.ORDERNUMBER,C.CustomerKey
+FROM SALES S
+LEFT JOIN
+Customers C
+ON C.CUSTOMERKEY = S.CUSTOMERKEY
 
-List product names, categories, and the number of times each product was sold.
+-- 7.Get a cross join result between Sales.SalesTerritory and Production.ProductCategory.
 
-Find employees who report to a manager who reports to someone else (2-level hierarchy).
+
+SELECT *
+FROM PRODUCTS P
+CROSS JOIN
+TerritoryLookup T
+
+
+-- 8. Show customer names and the total number of orders they placed in 2022.
+
+
+SELECT C.CustomerKey, C.FirstName + ' ' + C.LastName AS FullName, COUNT(S.ORDERNUMBER) AS TOTAL_ORDERS 
+FROM SALES S
+RIGHT JOIN
+Customers C
+ON C.CUSTOMERKEY = S.CUSTOMERKEY
+GROUP BY C.CustomerKey, C.FirstName, C.LastName, S.StockDate
+HAVING YEAR(S.StockDate) = 2022
+ORDER BY TOTAL_ORDERS DESC
+
+-- 9. List product names, categories, and the number of times each product was sold.
+
+SELECT pc.CategoryName, P.ProductName ,  count(s.ordernumber) as totalOrders
+FROM Products P
+LEFT JOIN 
+SALES S
+ON P.ProductKey = S.ProductKey
+RIGHT JOIN 
+ProductSubcategories Ps
+on
+Ps.productsubcategorykey = P.productsubcategorykey
+right join 
+ProductCategories pc
+on
+Ps.productcategorykey = Pc.productcategorykey
+GROUP BY p.ProductName, pc.CategoryName
+order by totalOrders desc
+
+
+-- 10. Find employees who report to a manager who reports to someone else (2-level hierarchy).
+
+--NO manager table in dataset
+
+
+
+
+2. Data Types & Constraints
+
