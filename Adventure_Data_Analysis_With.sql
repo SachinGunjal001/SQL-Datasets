@@ -101,17 +101,7 @@ WHERE S.OrderQuantity IS NULL
 --- 5. List all employees and their managers using a self-join.
 
 
-Select * from Customers
-Select * from Sales
-Select * from Products
-Select * from productcategories
 
-Select * from Calendars
-Select * from ProductSubcategories
-Select * from productcategorysales
-Select * from TerritoryLookup
-Select * from productcategorysales
-Select * from Returns
 
 -- 6. Find all orders, including those not linked to a customer.
 
@@ -167,6 +157,26 @@ order by totalOrders desc
 
 
 
+Select * from Customers
+Select * from Sales
+Select * from Products
+Select * from productcategories
 
+Select * from Calendars
+Select * from ProductSubcategories
+Select * from productcategorysales
+Select * from TerritoryLookup
+Select * from productcategorysales
+Select * from Returns
 2. Data Types & Constraints
+
+ -- Q1. The EmailAddress in the Customers table is critical and should never be empty. Write the SQL statement to add a NOT NULL constraint to this column.
+
+ ALTER TABLE Customers
+ ALTER COLUMN EmailAddress nvarchar(255) NOT NULL
+
+
+-- Q2. Write a SQL query that uses the systems INFORMATION_SCHEMA.COLUMNS view to list all the columns in your Customers table, 
+--     along with their DATA_TYPE (e.g., NVARCHAR, INT, DATETIME).
+
 
