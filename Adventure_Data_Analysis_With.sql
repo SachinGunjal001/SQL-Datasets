@@ -168,6 +168,7 @@ Select * from productcategorysales
 Select * from TerritoryLookup
 Select * from productcategorysales
 Select * from Returns
+
 2. Data Types & Constraints
 
  -- Q1. The EmailAddress in the Customers table is critical and should never be empty. Write the SQL statement to add a NOT NULL constraint to this column.
@@ -286,6 +287,97 @@ ON DELETE CASCADE ON UPDATE CASCADE;
 --Q10. You try to run the following query: DELETE FROM Customers WHERE CustomerKey = 11000;. Assuming this customer has existing orders in the Sales table, 
 --the query will fail.
  
- CAN'T delete becasue it child table
+ CANT delete becasue it child table
 
  ON DELETE CASCADE recommended if you want child records auto-deleted
+
+
+
+ 3. Subqueries and Correlated Subqueries.
+
+ 
+--Q1. Write a query to find all products from the Products table whose ProductPrice is greater than the overall average ProductPrice of all products.
+Select * from Products
+
+Select ProductName, ROUND(ProductPrice,2) as AboveAvgProductPrice
+FROM Products
+WHERE ProductPrice >= (SELECT AVG(ProductPrice) FROM Products)
+
+-- Q2. List the FirstName and LastName of all customers from the Customers table who placed an order on the date 2021-09-09. 
+
+Select * from Customers
+select * from sales
+
+select FirstName, LastName FROM Customers
+Where CustomerKey IN
+(Select CustomerKey From Sales
+Where OrderDate = '2021-09-09')
+
+select C.FirstName, C.LastName, S.OrderDate from Customers C
+left join 
+Sales S
+ON C.CustomerKey = S.CustomerKey
+WHERE S.OrderDate = '2021-09-09'
+
+
+--Q3. List the ProductName for all products that belong to the 'Bikes' CategoryName.
+
+Select * from Products
+select * from ProductCategories
+select * from ProductsubCategories
+
+
+select p.ProductName from Products P
+Inner join
+ProductSubcategories PS
+ON 
+P.ProductSubcategoryKey = PS.ProductSubcategoryKey
+Where ps.ProductSubcategoryKey IN 
+(select ProductCategoryKey from ProductCategories WHERE CategoryName = 'Bikes')
+
+--Q4. Find the FirstName and LastName of all customers who have purchased the product with ProductKey 214.
+
+Select * from Products
+select * from Customers
+select * from sales
+
+Select C.FirstName, C.LastName from Customers C
+Left Join
+Sales S ON
+C.customerKey = S.CustomerKey
+WHERE s.ProductKey IN
+(SELECT productKey FROM Products Where ProductKey = 214)
+
+--Q5. Find all sales records (OrderNumber, OrderQuantity) where the OrderQuantity is greater than the average OrderQuantity for all orders in the Sales table.
+
+
+WHERE OrderQuantity > (select AVG(OrderQuantity) from Sales)
+
+--Q6. (Correlated Subquery) A correlated subquery runs once for each row of the outer query. 
+--    Write a query to list all sales records from the Sales table where the OrderQuantity is greater than the average OrderQuantity for that same ProductKey.
+
+select ProductKey, OrderNumber, OrderQuantity from Sales S1
+WHERE s1.OrderQuantity > (select AVG(s2.OrderQuantity) from Sales s2
+where S1.ProductKey = S2.ProductKey)
+
+--Q7. Find all products (ProductName) that have been returned at least once. Use a subquery with EXISTS or IN on the Returns table to check for a matching ProductKey.
+
+select * from Products
+select * from Returns
+
+
+SELECT ProductName
+FROM Products
+WHERE ProductKey IN (
+    SELECT DISTINCT ProductKey
+    FROM Returns
+);
+
+
+--Q8. (Correlated Subquery) For each customer in the Customers table, find the OrderDate of their most recent order. 
+--  The result should show the customer's CustomerKey, FirstName, LastName, and this most recent OrderDate.
+
+-- Q9. List the names (FirstName, LastName) of customers whose total lifetime order quantity (the sum of all their OrderQuantity values) is greater than 
+--  the overall average total quantity per customer.
+
+-- Q10. List all products (ProductName and ProductPrice) that have a price greater than every single product in the 'Mountain Bikes' subcategory.
