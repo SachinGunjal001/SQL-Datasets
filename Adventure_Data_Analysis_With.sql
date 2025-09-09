@@ -179,4 +179,113 @@ Select * from Returns
 -- Q2. Write a SQL query that uses the systems INFORMATION_SCHEMA.COLUMNS view to list all the columns in your Customers table, 
 --     along with their DATA_TYPE (e.g., NVARCHAR, INT, DATETIME).
 
+execute sp_help 'Customers'
 
+ALTER TABLE Customers
+ALTER COLUMN CustomerKey INT
+
+Select * from Customers
+
+
+--Q3. Write the SQL statement to add a CHECK constraint to the Sales table. This constraint should be named CK_Sales_PositiveQuantity and 
+--    must ensure the OrderQuantity is always greater than zero.
+
+ALTER TABLE Sales
+ADD CONSTRAINT CK_Sales_PositiveQuantity CHECK (OrderQuantity > 0)
+
+Select * from Sales
+
+
+-- Q4. The ProductSKU in the Products table should be unique for every product to avoid duplicates. 
+--  Write the SQL statement to add a UNIQUE constraint to the ProductSKU column.
+
+Select * from Products
+
+ALTER TABLE Products
+ADD CONSTRAINT UN_SKU UNIQUE (ProductSKU)
+
+
+-- Q5. When a new product is added to the Products table, if the ProductColor is not specified,
+--it should automatically be set to the text 'Unspecified'. Write the SQL statement to add this DEFAULT constraint.
+
+ALTER TABLE Products
+ADD CONSTRAINT DF_Color DEFAULT 'Unspecified' FOR ProductColor 
+
+-- Q6. The Returns table needs a formal relationship to the Products table. Write the SQL statement to add a 
+--   FOREIGN KEY constraint on the ProductKey column in the Returns table that references the ProductKey column in the Products table.
+
+Select * from Returns
+
+ALTER TABLE Products
+ALTER COLUMN ProductKey INT NOT NULL;
+
+
+ALTER TABLE Products
+ADD CONSTRAINT PK_ProductKey PRIMARY KEY (ProductKey);
+
+ALTER TABLE Returns
+ALTER COLUMN ProductKey INT;
+
+
+ALTER TABLE Returns
+ADD CONSTRAINT FK_ProductKey
+FOREIGN KEY (ProductKey) REFERENCES Products(ProductKey)
+
+-- Q7. You want to find all the constraints (like Primary Keys and Foreign Keys) that exist on your Sales table. 
+-- Write a query against INFORMATION_SCHEMA.TABLE_CONSTRAINTS to find the CONSTRAINT_NAME and CONSTRAINT_TYPE for the Sales table.
+
+SELECT 
+    CONSTRAINT_NAME,
+    CONSTRAINT_TYPE
+FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+WHERE TABLE_NAME = 'Sales';
+
+
+-- Q8. To ensure profitability, the ProductPrice in the Products table must always be at least 15% higher than the ProductCost. 
+--Write a single CHECK constraint to enforce this business rule across all products.
+Select * from Products
+
+ALTER TABLE Products
+ADD CONSTRAINT CK_15High CHECK (ProductPrice >= 1.15 * ProductCost)
+
+
+--Q9. Imagine you are creating the FOREIGN KEY between ProductSubcategories and ProductCategories. 
+--Modify the constraint definition so that if a parent ProductCategory is deleted, all of its child ProductSubcategories are automatically deleted as well.
+
+SELECT * FROM [dbo].[ProductCategories]
+select * from [dbo].[ProductSubcategories]
+
+Execute SP_help '[ProductCategories]'
+Execute SP_help '[ProductSubCategories]'
+
+ALTER TABLE ProductCategories
+ALTER COLUMN ProductCategoryKey INT NOT NULL
+
+ALTER TABLE ProductSubcategories
+ALTER COLUMN ProductCategoryKey INT NOT NULL;
+
+
+ALTER TABLE ProductSubCategories
+ALTER COLUMN ProductSubCategoryKey INT NOT NULL
+
+ALTER TABLE ProductSubCategories
+ADD CONSTRAINT PK_Key PRIMARY KEY (ProductSubCategoryKey)
+
+
+ALTER TABLE ProductCategories
+ADD CONSTRAINT PK_ProductCategory PRIMARY KEY (ProductCategoryKey);
+
+
+ALTER TABLE ProductSubcategories
+ADD CONSTRAINT FK_ProductCategory_SubCategory
+FOREIGN KEY (ProductCategoryKey) 
+REFERENCES ProductCategories(ProductCategoryKey)
+ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+--Q10. You try to run the following query: DELETE FROM Customers WHERE CustomerKey = 11000;. Assuming this customer has existing orders in the Sales table, 
+--the query will fail.
+ 
+ CAN'T delete becasue it child table
+
+ ON DELETE CASCADE recommended if you want child records auto-deleted
