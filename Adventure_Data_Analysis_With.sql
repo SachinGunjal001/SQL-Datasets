@@ -377,6 +377,17 @@ WHERE ProductKey IN (
 --Q8. (Correlated Subquery) For each customer in the Customers table, find the OrderDate of their most recent order. 
 --  The result should show the customer's CustomerKey, FirstName, LastName, and this most recent OrderDate.
 
+select * from customers
+select * from sales
+
+
+SELECT c.CustomerKey, c.FirstName, c.LastName,
+    (SELECT MAX(s.OrderDate) FROM Sales s
+        WHERE s.CustomerKey = c.CustomerKey
+    ) AS MostRecentOrderDate
+FROM Customers c
+ORDER BY c.CustomerKey;
+
 -- Q9. List the names (FirstName, LastName) of customers whose total lifetime order quantity (the sum of all their OrderQuantity values) is greater than 
 --  the overall average total quantity per customer.
 
