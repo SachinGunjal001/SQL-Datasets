@@ -391,4 +391,64 @@ ORDER BY c.CustomerKey;
 -- Q9. List the names (FirstName, LastName) of customers whose total lifetime order quantity (the sum of all their OrderQuantity values) is greater than 
 --  the overall average total quantity per customer.
 
+-- Step 1: Create a CTE to calculate the total order quantity for each individual customer.
+WITH CustomerTotalQuantities AS (
+    SELECT
+        CustomerKey,
+        SUM(OrderQuantity) AS TotalQuantityPerCustomer
+    FROM
+        Sales
+    GROUP BY
+        CustomerKey
+),
+
+-- Step 2: Create a second CTE to calculate the overall average of the total quantities calculated in the first step.
+-- This gives us a single value to compare against.
+AverageQuantity AS (
+    SELECT
+        AVG(TotalQuantityPerCustomer) AS OverallAverageQuantity
+    FROM
+        CustomerTotalQuantities
+)
+
+-- Step 3: Select the names of the customers who meet the criteria.
+SELECT
+    c.FirstName,
+    c.LastName,
+    ctq.TotalQuantityPerCustomer
+FROM
+    Customers c
+-- Join our main customer table with the per-customer totals
+JOIN
+    CustomerTotalQuantities ctq ON c.CustomerKey = ctq.CustomerKey,
+-- Include the single average value so we can use it in the WHERE clause
+    AverageQuantity aq
+-- The final filter: only include customers whose total is greater than the overall average.
+WHERE
+    ctq.TotalQuantityPerCustomer > aq.OverallAverageQuantity
+ORDER BY
+    ctq.TotalQuantityPerCustomer DESC;
+
+
 -- Q10. List all products (ProductName and ProductPrice) that have a price greater than every single product in the 'Mountain Bikes' subcategory.
+
+SELECT
+    ProductName,
+    ProductPrice
+FROM
+    Products
+WHERE
+    ProductPrice > ALL (
+        -- This subquery generates a list of all the ProductPrices
+        -- for products that belong to the 'Mountain Bikes' subcategory.
+        SELECT
+            p.ProductPrice
+        FROM
+            Products p
+        JOIN
+            ProductSubcategories ps ON p.ProductSubcategoryKey = ps.ProductSubcategoryKey
+        WHERE
+            ps.SubcategoryName = 'Mountain Bikes'
+    )
+ORDER BY
+    ProductPrice;
