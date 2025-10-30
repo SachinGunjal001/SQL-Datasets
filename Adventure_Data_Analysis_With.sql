@@ -452,3 +452,90 @@ WHERE
     )
 ORDER BY
     ProductPrice;
+
+
+
+	4. CTEs Common Table Expressions
+
+--Q1. Write a query using a CTE named ProfessionalCustomers to select only the customers whose Occupation is 'Professional'. 
+Then, write the final SELECT statement to show the FirstName, LastName, and AnnualIncome from the CTE.
+
+WITH ProfessionalCustomers as(
+SELECT * from Customers
+where Occupation = 'Professional'
+)
+SELECT FirstName, LastName, AnnualIncome from ProfessionalCustomers
+
+-- Q2. Create a CTE named HighQuantitySales that holds all sales records from the Sales table where the OrderQuantity is 3 or more. 
+Then, query the CTE to get the OrderNumber and ProductKey.
+
+WITH HighQuantitySales AS(
+	SELECT * from Sales
+	where OrderQuantity >= 3 )
+
+select OrderNumber, ProductKey from HighQuantitySales
+
+
+-- Q3. Use a CTE to calculate the total OrderQuantity for each CustomerKey. Then, JOIN the CTE back to the Customers table to list the FirstName, LastName, 
+and their TotalQuantity.
+
+WITH TotalOrderQuantity AS (
+	SELECT CustomerKey, COUNT(OrderQuantity) as TotalQuantity  FROM Sales S
+	group by CustomerKey
+	)
+
+	SELECT C.FirstName, C.LastName, T.TotalQuantity 
+	FROM Customers C
+	LEFT JOIN
+	TotalOrderQuantity T ON
+	T.CustomerKey = C.CustomerKey
+
+
+-- Q4. Create a CTE named BikeProducts that lists the ProductName and ProductPrice for all products that belong to the 'Bikes' CategoryName. 
+-- This will require JOINs inside the CTE. Then, query the CTE to find all bikes with a ProductPrice over $2000.
+
+WITH BikeProducts AS(
+	
+	select P.ProductName, P.ProductPrice from Products P
+	LEFT JOIN
+	ProductSubcategories PS
+	ON P.ProductSubcategoryKey = PS.ProductSubcategoryKey
+	INNER JOIN
+	Productcategories PC
+	ON
+	PC.ProductCategoryKey = PS.ProductCategoryKey
+	WHERE PC.CategoryName = 'Bikes'
+			
+	)
+
+SELECT * FROM BikeProducts
+WHERE ProductPrice > 2000
+
+-- Q5. Write a query that uses two chained CTEs.
+
+-- The first CTE, NorthAmericaSales, should find all OrderNumbers from sales that occurred in the 'North America' Continent (using the TerritoryLookup table).
+-- The second CTE, HighValueSales, should query the first CTE to find the sales records from NorthAmericaSales that have an OrderQuantity > 1.
+
+-- Finally, select the OrderNumber from the HighValueSales CTE.
+
+WITH NorthAmericaSales AS(
+
+select s.OrderNumber, s.OrderQuantity from TerritoryLookup T
+LEFT JOIN Sales S
+ON 
+T.SalesTerritoryKey = s.TerritoryKey
+WHERE T.Continent = 'North America'
+	),
+
+HighValueSales AS(
+	
+	select OrderQuantity,OrderNumber FROM NorthAmericaSales
+	where OrderQuantity > 1
+	)
+
+select OrderNumber from HighValueSales
+-- Q6. Lets re-solve a problem from our subquery section. Use a CTE named AveragePrice to find the single average ProductPrice for all products. 
+-- Then, in the main query, select all ProductNames from the Products table that have a ProductPrice greater than the average (by joining to the CTE).
+
+-- Q7. Use a CTE to find the total quantity sold (TotalSold) for each ProductKey. Then, JOIN this CTE with the Products table to show the ProductName and its TotalSold,
+--ordered from most sold to least sold.
