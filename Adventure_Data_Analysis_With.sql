@@ -534,8 +534,103 @@ HighValueSales AS(
 	)
 
 select OrderNumber from HighValueSales
+
 -- Q6. Lets re-solve a problem from our subquery section. Use a CTE named AveragePrice to find the single average ProductPrice for all products. 
--- Then, in the main query, select all ProductNames from the Products table that have a ProductPrice greater than the average (by joining to the CTE).
+ --Then, in the main query, select all ProductNames from the Products table that have a ProductPrice greater than the average (by joining to the CTE).
+
+WITH AveragePrice AS (
+
+	SELECT AVG(ProductPrice) as AvgPrice FROM Products
+)
+
+SELECT P.ProductName FROM Products P
+INNER JOIN
+AveragePrice AP ON
+P.ProductPrice > AP.AvgPrice
 
 -- Q7. Use a CTE to find the total quantity sold (TotalSold) for each ProductKey. Then, JOIN this CTE with the Products table to show the ProductName and its TotalSold,
 --ordered from most sold to least sold.
+
+WITH TotalSold AS(
+
+	SELECT P.ProductKey, COUNT(s.OrderQuantity) as TotalOrders FROM Products P
+	INNER JOIN Sales S
+	ON S.ProductKey = P.ProductKey
+	GROUP BY P.ProductKey
+	)
+
+	SELECT P.ProductName, T.TotalOrders FROM Products P
+	INNER JOIN 
+	TotalSold T
+	ON P.ProductKey = T.ProductKey
+
+
+
+--Q8. Combine a CTE with a Window Function.
+
+--Create a CTE named CustomerSalesRank that selects the CustomerKey and SUM(OrderQuantity) from the Sales table.
+--In the main query, select the CustomerKey, total quantity, and add a RANK() over the total quantity to rank all customers from highest to lowest.
+
+WITH CustomerSalesRank AS(
+		SELECT CustomerKey, SUM(OrderQuantity) as totalQuant from Sales
+		GROUP By CustomerKey
+	)
+select CustomerKey, TotalQuant,
+RANK() Over(Order by TotalQuant DESC) as Ranks
+FROM CustomerSalesRank
+
+
+--Q10. Create a complex report using CTEs.
+
+--Create a CTE named BikeSales that finds the total OrderQuantity sold for each 'Bikes' ProductKey.
+--Create a second CTE named BikeReturns that finds the total ReturnQuantity for each 'Bikes' ProductKey.
+--In the final query, JOIN these two CTEs (using a LEFT JOIN) and the Products table to show the ProductName, TotalSold, TotalReturned, 
+--and a calculated column NetSales (TotalSold - TotalReturned).
+
+WITH BikeSales AS (
+    SELECT p.ProductKey, SUM(s.OrderQuantity) AS TotalSold
+    FROM Products p
+    JOIN
+        Sales s ON p.ProductKey = s.ProductKey
+    JOIN
+        ProductSubcategories ps ON p.ProductSubcategoryKey = ps.ProductSubcategoryKey
+    JOIN
+        ProductCategories pc ON ps.ProductCategoryKey = pc.ProductCategoryKey
+    WHERE
+        pc.CategoryName = 'Bikes'
+    GROUP BY
+        p.ProductKey
+),
+
+BikeReturns AS (
+    SELECT p.ProductKey, SUM(r.ReturnQuantity) AS TotalReturned
+    FROM Products p
+    JOIN Returns r 
+	ON p.ProductKey = r.ProductKey
+    JOIN ProductSubcategories ps ON 
+	p.ProductSubcategoryKey = ps.ProductSubcategoryKey
+    JOIN ProductCategories pc ON 
+	ps.ProductCategoryKey = pc.ProductCategoryKey
+    WHERE  pc.CategoryName = 'Bikes'
+    GROUP BY p.ProductKey
+)
+
+SELECT
+    p.ProductName,
+    bs.TotalSold AS TotalSold,
+    br.TotalReturned AS TotalReturned,
+    (bs.TotalSold - br.TotalReturned) AS NetSales
+FROM
+    Products p
+JOIN
+    ProductSubcategories ps ON p.ProductSubcategoryKey = ps.ProductSubcategoryKey
+JOIN
+    ProductCategories pc ON ps.ProductCategoryKey = pc.ProductCategoryKey
+LEFT JOIN
+    BikeSales bs ON p.ProductKey = bs.ProductKey
+LEFT JOIN
+    BikeReturns br ON p.ProductKey = br.ProductKey
+WHERE
+    pc.CategoryName = 'Bikes'
+ORDER BY
+    NetSales DESC;
