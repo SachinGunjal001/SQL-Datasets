@@ -634,3 +634,43 @@ WHERE
     pc.CategoryName = 'Bikes'
 ORDER BY
     NetSales DESC;
+
+
+
+
+
+
+## Windows Functions
+
+
+--Q1. ROW_NUMBER() Write a query to list all ProductNames and their ProductPrices. Add a new column called PriceRank that ranks all products 
+--from most expensive to least expensive using ROW_NUMBER().
+
+--Q2. Running Total Write a query that shows the OrderDate, OrderNumber, and OrderQuantity from the Sales table. 
+--Add a fourth column called RunningTotalQuantity that calculates a running total of the OrderQuantity over time, ordered by OrderDate
+
+
+--Q3. RANK() vs. DENSE_RANK() Write a query to rank all products within their subcategory. The result should show ProductName, SubcategoryName, ProductPrice, 
+--a rank using RANK(), and a rank using DENSE_RANK(). Order the results to see the difference. (Hint: You'll need PARTITION BY the subcategory.)
+
+--Q4. PARTITION BY Write a query to show the OrderNumber, ProductKey, and OrderQuantity for every sale. 
+--Add a new column called TotalQuantityForThisProduct that shows the total quantity ever sold for that specific ProductKey, appearing on every row for that product. 
+
+--Q5. LEAD() Write a query that shows all of a single customer's orders (e.g., for CustomerKey = 11000). 
+--The result should show the OrderDate and a second column called NextOrderDate that shows the date of their next order. The last order should have NULL in this column. (Hint: Use LEAD(...) OVER (PARTITION BY ... ORDER BY ...))
+
+-- Q6. LAG() Write a query that shows the OrderDate and OrderQuantity for each sale. Add a new column called QuantityDifferenceFromPreviousOrder that calculates 
+--the difference between the current order's quantity and the previous order's quantity (based on OrderDate). 
+
+--Q7. NTILE() Write a query to divide all customers into 4 equal groups (quartiles) based on their AnnualIncome. 
+--The result should show the CustomerKey, AnnualIncome, and a IncomeQuartile number (1, 2, 3, or 4).
+
+
+-- Q8. Top N Per Group Write a query to find the top 2 most expensive products in each ProductSubcategory. 
+--(Hint: You'll need to use ROW_NUMBER() or RANK() with PARTITION BY inside a CTE, and then filter for the rank <= 2 in the main query.)
+
+-- Q9. Moving Average Write a query to calculate the 3-day moving average of OrderQuantity. The result should show the OrderDate, the TotalQuantityForThatDay, 
+-- and a 3DayMovingAverage column. (Hint: This requires SUM(...) OVER (ORDER BY ... ROWS BETWEEN 2 PRECEDING AND CURRENT ROW))
+
+--Q10. FIRST_VALUE() Write a query that shows every order line from the Sales table. Add a new column called CustomerFirstOrderDate that shows 
+-- the date of that customer's very first order on every single row for that customer
