@@ -646,18 +646,42 @@ ORDER BY
 --Q1. ROW_NUMBER() Write a query to list all ProductNames and their ProductPrices. Add a new column called PriceRank that ranks all products 
 --from most expensive to least expensive using ROW_NUMBER().
 
+SELECT ProductName, ProductPrice,
+ROW_NUMBER() OVER(order by ProductPrice DESC) as PriceRank
+FROM Products
+
 --Q2. Running Total Write a query that shows the OrderDate, OrderNumber, and OrderQuantity from the Sales table. 
 --Add a fourth column called RunningTotalQuantity that calculates a running total of the OrderQuantity over time, ordered by OrderDate
 
+SELECT OrderDate, OrderNumber, OrderQuantity,
+SUM(OrderQuantity) OVER(Order by OrderDate)  as RunningTotalQuantity
+FROM Sales
+order by OrderDate DESC
+
+select * from sales
 
 --Q3. RANK() vs. DENSE_RANK() Write a query to rank all products within their subcategory. The result should show ProductName, SubcategoryName, ProductPrice, 
---a rank using RANK(), and a rank using DENSE_RANK(). Order the results to see the difference. (Hint: You'll need PARTITION BY the subcategory.)
+--a rank using RANK(), and a rank using DENSE_RANK(). Order the results to see the difference.
+
+Select P.ProductName, PS.SubcategoryName, P.ProductPrice,
+RANK() OVER(Order by P.ProductPrice) as Ranking,
+DENSE_RANK() OVER(Order by P.ProductPrice) AS DenseRanking
+from Products p
+inner join ProductSubcategories ps
+on P.ProductSubcategoryKey = ps.ProductSubcategoryKey
 
 --Q4. PARTITION BY Write a query to show the OrderNumber, ProductKey, and OrderQuantity for every sale. 
---Add a new column called TotalQuantityForThisProduct that shows the total quantity ever sold for that specific ProductKey, appearing on every row for that product. 
+--Add a new column called TotalQuantityForThisProduct that shows the total quantity ever sold for that specific ProductKey, appearing on every row for that product.
+
+SELECT ProductKey,
+SUM(OrderQuantity) OVER(PARTITION BY ProductKey) AS TotalQuantityForThisProduct
+from sales
+order by TotalQuantityForThisProduct DESC
 
 --Q5. LEAD() Write a query that shows all of a single customer's orders (e.g., for CustomerKey = 11000). 
 --The result should show the OrderDate and a second column called NextOrderDate that shows the date of their next order. The last order should have NULL in this column. (Hint: Use LEAD(...) OVER (PARTITION BY ... ORDER BY ...))
+
+
 
 -- Q6. LAG() Write a query that shows the OrderDate and OrderQuantity for each sale. Add a new column called QuantityDifferenceFromPreviousOrder that calculates 
 --the difference between the current order's quantity and the previous order's quantity (based on OrderDate). 
