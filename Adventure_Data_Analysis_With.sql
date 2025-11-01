@@ -679,7 +679,8 @@ from sales
 order by TotalQuantityForThisProduct DESC
 
 --Q5. LEAD() Write a query that shows all of a single customer's orders (e.g., for CustomerKey = 11000). 
---The result should show the OrderDate and a second column called NextOrderDate that shows the date of their next order. The last order should have NULL in this column. (Hint: Use LEAD(...) OVER (PARTITION BY ... ORDER BY ...))
+--The result should show the OrderDate and a second column called NextOrderDate that shows the date of their next order. 
+-- The last order should have NULL in this column. 
 
 
 
