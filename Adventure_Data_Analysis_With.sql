@@ -682,20 +682,65 @@ order by TotalQuantityForThisProduct DESC
 --The result should show the OrderDate and a second column called NextOrderDate that shows the date of their next order. 
 -- The last order should have NULL in this column. 
 
+select CustomerKey, OrderDate,
+LEAD(OrderDate) OVER(Partition by CustomerKey Order By OrderDate) as NextOrderDate
+from Sales
+Where CustomerKey = 11000
+Order By OrderDate DESC
 
 
 -- Q6. LAG() Write a query that shows the OrderDate and OrderQuantity for each sale. Add a new column called QuantityDifferenceFromPreviousOrder that calculates 
 --the difference between the current order's quantity and the previous order's quantity (based on OrderDate). 
 
+select OrderDate, OrderQuantity,
+(OrderQuantity - LAG(OrderQuantity) Over(Order by OrderDate DESC)) as QuantityDifferenceFromPreviousOrder
+from sales
+
 --Q7. NTILE() Write a query to divide all customers into 4 equal groups (quartiles) based on their AnnualIncome. 
 --The result should show the CustomerKey, AnnualIncome, and a IncomeQuartile number (1, 2, 3, or 4).
 
+select CustomerKey, AnnualIncome,
+NTILE(4) Over(Order by AnnualIncome DESC) as IncomeQuartile
+from Customers
+order by CustomerKey 
 
 -- Q8. Top N Per Group Write a query to find the top 2 most expensive products in each ProductSubcategory. 
 --(Hint: You'll need to use ROW_NUMBER() or RANK() with PARTITION BY inside a CTE, and then filter for the rank <= 2 in the main query.)
 
+select * from products
+
+WITH ProductExp AS(
+	
+	select ProductName, ProductSubcategoryKey, Productkey, ProductPrice,
+	ROW_NUMBER() over(partition by ProductSubcategoryKey order by ProductPrice DESC) RowNumber
+	from Products
+)
+
+select * from ProductExp
+where RowNumber <= 2
+
+
 -- Q9. Moving Average Write a query to calculate the 3-day moving average of OrderQuantity. The result should show the OrderDate, the TotalQuantityForThatDay, 
 -- and a 3DayMovingAverage column. (Hint: This requires SUM(...) OVER (ORDER BY ... ROWS BETWEEN 2 PRECEDING AND CURRENT ROW))
 
+WITH DailySales AS(
+	select OrderDate, sum(orderquantity) as TotalQuantityForThatDay 
+	from Sales
+	group by OrderDate
+	)
+select FORMAT(orderdate, 'YYYY-MM-DD'), TotalQuantityForThatDay,
+ROUND(avg(TotalQuantityForThatDay) OVER(order by OrderDate ROWS BETWEEN 2 PRECEDING and current ROW),2) as ThreeDayMovingAverage
+from DailySales
+
 --Q10. FIRST_VALUE() Write a query that shows every order line from the Sales table. Add a new column called CustomerFirstOrderDate that shows 
 -- the date of that customer's very first order on every single row for that customer
+
+SELECT
+    CustomerKey,
+    OrderDate,
+    OrderQuantity,
+    FIRST_VALUE(OrderDate) OVER (PARTITION BY CustomerKey ORDER BY OrderDate ASC
+    ) AS CustomerFirstOrderDate
+FROM Sales
+ORDER BY CustomerKey, OrderDate;
+
